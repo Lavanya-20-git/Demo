@@ -3,13 +3,12 @@ pipeline {
 
     environment {
         APP_NAME = "SamplePythonApp"
-        DEPLOY_DIR = "/var/www/${APP_NAME}"  // Change to your deploy path
+        DEPLOY_DIR = "/var/www/${APP_NAME}"  // Change as needed
     }
 
     stages {
         stage('Checkout') {
             steps {
-                echo 'Checking out code from GitHub...'
                 git branch: 'main', url: 'https://github.com/Lavanya-20-git/Demo.git'
             }
         }
@@ -27,6 +26,13 @@ pipeline {
             steps {
                 echo 'Running tests...'
                 sh './venv/bin/pytest tests/'
+            }
+        }
+
+        stage('Run Flask App') {
+            steps {
+                echo 'Starting Flask app...'
+                sh './venv/bin/python app.py &'  // Run in background
             }
         }
 
