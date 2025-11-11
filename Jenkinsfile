@@ -10,7 +10,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Pull code from Git repository
-                git branch: 'main', url: 'https://github.com/your-repo.git'
+                git branch: 'main', url: 'https://github.com/Lavanya-20-git/Demo.git'
             }
         }
 
