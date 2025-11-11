@@ -1,54 +1,62 @@
 pipeline {
-    agent any
+    agent any  // Runs on any available Jenkins agent
+
+    environment {
+        APP_NAME = "MyApp"
+        DEPLOY_ENV = "staging"
+    }
 
     stages {
         stage('Checkout') {
             steps {
-                // Clone your repository
-                git branch: 'main', url: 'https://github.com/Lavanya-20-git/Demo.git'
+                // Pull code from Git repository
+                git branch: 'main', url: 'https://github.com/your-repo.git'
             }
         }
 
-        stage('Set up Python Environment') {
+        stage('Build') {
             steps {
-                echo 'Creating virtual environment and installing dependencies...'
-                // Create virtual environment
-                bat 'python -m venv venv'
-                // Activate and install dependencies
-                bat 'venv\\Scripts\\activate && python -m pip install --upgrade pip'
-                bat 'venv\\Scripts\\activate && pip install -r requirements.txt'
+                echo "Building ${APP_NAME}..."
+                // Example: Maven build
+                sh 'mvn clean package'
             }
         }
 
-        stage('Run Tests') {
+        stage('Test') {
             steps {
-                echo 'Running test cases...'
-                bat 'venv\\Scripts\\activate && python test_app.py'
+                echo "Running tests..."
+                // Example: Run unit tests
+                sh 'mvn test'
             }
-        }
-
-        stage('Run Application') {
-            steps {
-                echo 'Starting Flask application (for demo only)...'
-                bat 'venv\\Scripts\\activate && python app.py'
+            post {
+                always {
+                    junit '**/target/surefire-reports/*.xml'
+                }
             }
         }
 
         stage('Deploy') {
+            when {
+                branch 'main'
+            }
             steps {
-                echo 'Simulating deployment...'
-                // Add your deployment commands here, e.g., copy files to a server
-                // bat 'xcopy /Y app.py D:\\deploy\\sample-app\\'
+                echo "Deploying ${APP_NAME} to ${DEPLOY_ENV} environment..."
+                // Example deployment command
+                sh './deploy.sh'
             }
         }
     }
 
     post {
         success {
-            echo '✅ Pipeline completed successfully!'
+            echo 'Pipeline completed successfully!'
         }
         failure {
-            echo '❌ Pipeline failed!'
+            echo 'Pipeline failed. Check logs for details.'
+        }
+        always {
+            echo 'Cleaning up workspace...'
+            cleanWs()
         }
     }
 }
